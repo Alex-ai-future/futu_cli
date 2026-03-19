@@ -36,8 +36,8 @@ dev = [
 futu = "futu_cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/futu_cli"
-Repository = "https://github.com/yourusername/futu_cli.git"
+Homepage = "https://github.com/Alex-ai-future/futu_cli"
+Repository = "https://github.com/Alex-ai-future/futu_cli.git"
 
 [build-system]
 requires = ["hatchling"]

@@ -6,10 +6,10 @@
 
 ```bash
 # Install via uv (one-time)
-uv tool install git+https://github.com/yourusername/futu_cli.git
+uv tool install git+https://github.com/Alex-ai-future/futu_cli.git
 
 # Or from source
-git clone https://github.com/yourusername/futu_cli.git
+git clone https://github.com/Alex-ai-future/futu_cli.git
 cd futu_cli
 uv tool install .
 ```
@@ -104,7 +104,7 @@ After running `futu setup --reset`, the configuration file is created at:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/futu_cli.git
+git clone https://github.com/Alex-ai-future/futu_cli.git
 cd futu_cli
 
 # Create virtual environment and install dependencies

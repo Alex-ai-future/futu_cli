@@ -13,7 +13,7 @@ tags: [futu, cli, portfolio, stock, trading, finance]
 
 ```bash
 # 安装
-uv tool install git+https://github.com/yourusername/futu_cli.git
+uv tool install git+https://github.com/Alex-ai-future/futu_cli.git
 
 # 配置（首次使用）
 futu setup --reset
