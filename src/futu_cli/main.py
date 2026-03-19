@@ -14,6 +14,8 @@ from .commands import (
     cmd_orders,
     cmd_accinfo,
     cmd_cashflow,
+    cmd_history_orders,
+    cmd_history_fills,
     cmd_setup,
     cmd_help,
 )
@@ -75,6 +77,24 @@ def accinfo():
 def cashflow(date):
     """📋 Query account cash flow"""
     cmd_cashflow(date)
+
+
+@main.command()
+@click.option("--start", "-s", default=None, help="Start time (YYYY-MM-DD HH:MM:SS)")
+@click.option("--end", "-e", default=None, help="End time (YYYY-MM-DD HH:MM:SS)")
+@click.option("--code", "-c", default=None, help="Stock code filter")
+def history_orders(start, end, code):
+    """📋 Query history orders"""
+    cmd_history_orders(start=start, end=end, code=code)
+
+
+@main.command()
+@click.option("--start", "-s", default=None, help="Start time (YYYY-MM-DD HH:MM:SS)")
+@click.option("--end", "-e", default=None, help="End time (YYYY-MM-DD HH:MM:SS)")
+@click.option("--code", "-c", default=None, help="Stock code filter")
+def history_fills(start, end, code):
+    """📋 Query history deals/fills"""
+    cmd_history_fills(start=start, end=end, code=code)
 
 
 @main.command()

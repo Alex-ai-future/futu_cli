@@ -55,6 +55,16 @@ futu cashflow
 
 # Query cash flow for specific date
 futu cashflow --date 2025-03-19
+
+# Query history orders (default: last 90 days)
+futu history-orders
+
+# Query history orders with filters
+futu history-orders --start "2025-01-01 00:00:00" --code US.AAPL
+
+# Query history deals/fills
+futu history-fills
+futu history-fills --code HK.00700
 ```
 
 ## Commands
@@ -65,6 +75,8 @@ futu cashflow --date 2025-03-19
 | `futu orders` | Query pending and history orders |
 | `futu accinfo` | Query account information (cash, buying power) |
 | `futu cashflow [date]` | Query account cash flow for specified date (yyyy-MM-dd) |
+| `futu history-orders` | Query history orders (default: last 90 days) |
+| `futu history-fills` | Query history deals/fills (default: last 90 days) |
 | `futu setup` | Configuration wizard |
 | `futu help` | Show help message |
 

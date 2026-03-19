@@ -262,6 +262,145 @@ def cmd_cashflow(date: str = None):
         trade_ctx.close()
 
 
+def cmd_history_orders(start: str = None, end: str = None, code: str = None):
+    """查询历史订单."""
+    quote_ctx, trade_ctx = init_context()
+    try:
+        if not unlock_trade(trade_ctx):
+            return
+
+        ret, data = trade_ctx.history_order_list_query(
+            start=start,
+            end=end,
+            code=code,
+            trd_env=TrdEnv.REAL
+        )
+        if ret != RET_OK:
+            console.print(f"[red]❌ 查询历史订单失败：{data}[/]")
+            return
+
+        if data.empty:
+            console.print("[yellow]📋 无历史订单记录[/]")
+            return
+
+        # 创建表格
+        table = Table(title="📋 历史订单")
+        table.add_column("订单 ID", style="cyan", justify="right")
+        table.add_column("代码", style="cyan", justify="left")
+        table.add_column("名称", justify="left")
+        table.add_column("方向", justify="center")
+        table.add_column("类型", justify="center")
+        table.add_column("状态", justify="center")
+        table.add_column("数量", justify="right")
+        table.add_column("价格", justify="right")
+        table.add_column("已成交", justify="right")
+        table.add_column("创建时间", justify="center")
+
+        for _, row in data.iterrows():
+            order_id = str(row.get("order_id", ""))
+            stock_code = str(row.get("code", ""))
+            stock_name = str(row.get("stock_name", ""))
+            trd_side = str(row.get("trd_side", ""))
+            order_type = str(row.get("order_type", ""))
+            order_status = str(row.get("order_status", ""))
+            qty = f"{row.get('qty', 0):,.0f}"
+            price = f"{row.get('price', 0):.3f}"
+            dealt_qty = f"{row.get('dealt_qty', 0):,.0f}"
+            create_time = str(row.get("create_time", ""))
+
+            table.add_row(
+                order_id,
+                stock_code,
+                stock_name[:15] if len(stock_name) > 15 else stock_name,
+                trd_side,
+                order_type,
+                order_status,
+                qty,
+                price,
+                dealt_qty,
+                create_time,
+            )
+
+        console.print(table)
+        console.print(f"\n[bold]共 {len(data)} 条记录[/]")
+
+    except Exception as e:
+        console.print(f"[red]❌ 查询失败：{e}[/]")
+        import traceback
+        traceback.print_exc()
+    finally:
+        quote_ctx.close()
+        trade_ctx.close()
+
+
+def cmd_history_fills(start: str = None, end: str = None, code: str = None):
+    """查询历史成交."""
+    quote_ctx, trade_ctx = init_context()
+    try:
+        if not unlock_trade(trade_ctx):
+            return
+
+        ret, data = trade_ctx.history_deal_list_query(
+            start=start,
+            end=end,
+            code=code,
+            trd_env=TrdEnv.REAL
+        )
+        if ret != RET_OK:
+            console.print(f"[red]❌ 查询历史成交失败：{data}[/]")
+            return
+
+        if data.empty:
+            console.print("[yellow]📋 无历史成交记录[/]")
+            return
+
+        # 创建表格
+        table = Table(title="📋 历史成交")
+        table.add_column("成交 ID", style="cyan", justify="right")
+        table.add_column("订单 ID", style="cyan", justify="right")
+        table.add_column("代码", style="cyan", justify="left")
+        table.add_column("名称", justify="left")
+        table.add_column("方向", justify="center")
+        table.add_column("数量", justify="right")
+        table.add_column("价格", justify="right")
+        table.add_column("时间", justify="center")
+        table.add_column("对手经纪", justify="left")
+
+        for _, row in data.iterrows():
+            deal_id = str(row.get("deal_id", ""))
+            order_id = str(row.get("order_id", ""))
+            stock_code = str(row.get("code", ""))
+            stock_name = str(row.get("stock_name", ""))
+            trd_side = str(row.get("trd_side", ""))
+            qty = f"{row.get('qty', 0):,.0f}"
+            price = f"{row.get('price', 0):.3f}"
+            create_time = str(row.get("create_time", ""))
+            counter_broker = str(row.get("counter_broker_name", ""))
+
+            table.add_row(
+                deal_id,
+                order_id,
+                stock_code,
+                stock_name[:15] if len(stock_name) > 15 else stock_name,
+                trd_side,
+                qty,
+                price,
+                create_time,
+                counter_broker if counter_broker != "N/A" else "-",
+            )
+
+        console.print(table)
+        console.print(f"\n[bold]共 {len(data)} 条记录[/]")
+
+    except Exception as e:
+        console.print(f"[red]❌ 查询失败：{e}[/]")
+        import traceback
+        traceback.print_exc()
+    finally:
+        quote_ctx.close()
+        trade_ctx.close()
+
+
 def cmd_setup():
     """配置向导."""
     from .config import config
@@ -308,12 +447,14 @@ def cmd_help():
 [bold]用法：[/] futu <命令> [参数]
 
 [bold]可用命令：[/]
-  [cyan]positions[/]         查询持仓
-  [cyan]orders[/]           查询订单
-  [cyan]accinfo[/]          查询账户信息
-  [cyan]cashflow[/] [日期]   查询现金流水
-  [cyan]setup[/]            配置向导
-  [cyan]help[/]             显示帮助
+  [cyan]positions[/]              查询持仓
+  [cyan]orders[/]                 查询订单
+  [cyan]accinfo[/]                查询账户信息
+  [cyan]cashflow[/] [日期]        查询现金流水
+  [cyan]history-orders[/]         查询历史订单
+  [cyan]history-fills[/]          查询历史成交
+  [cyan]setup[/]                  配置向导
+  [cyan]help[/]                   显示帮助
 
 [bold]示例：[/]
   [green]futu positions[/]
@@ -321,6 +462,9 @@ def cmd_help():
   [green]futu accinfo[/]
   [green]futu cashflow[/]
   [green]futu cashflow --date 2025-03-19[/]
+  [green]futu history-orders[/]
+  [green]futu history-orders --start "2025-01-01" --code US.AAPL[/]
+  [green]futu history-fills --code HK.00700[/]
 
 [bold]环境变量：[/]
   FUTU_PASSWORD      交易密码（必填）
