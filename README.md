@@ -56,7 +56,6 @@ futu orders
 | Command | Description |
 |---------|-------------|
 | `futu positions` | Query all positions (stocks, options, etc.) |
-| `futu quote <code>` | Query real-time stock quote |
 | `futu orders` | Query pending and history orders |
 | `futu accinfo` | Query account information (cash, buying power) |
 | `futu setup` | Configuration wizard |
