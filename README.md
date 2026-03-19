@@ -1,6 +1,6 @@
 # Futu CLI
 
-> **Make Futu portfolio your CLI.** Query positions, quotes, orders and more from Futu NiuNiu.
+> **Make Futu portfolio your CLI.** Query positions, orders, account info and more from Futu NiuNiu.
 
 ## Install
 
@@ -43,10 +43,6 @@ futu setup --reset
 ```bash
 # Query positions
 futu positions
-
-# Query stock quote
-futu quote US.AAPL
-futu quote HK.00700
 
 # Query account info
 futu accinfo

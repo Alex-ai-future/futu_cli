@@ -90,74 +90,6 @@ def cmd_positions():
         trade_ctx.close()
 
 
-def cmd_quote(code: str):
-    """查询股价."""
-    if not code:
-        console.print("[red]❌ 用法：futu quote <股票代码>[/]")
-        console.print("")
-        console.print("示例：")
-        console.print("  futu quote US.AAPL")
-        console.print("  futu quote HK.00700")
-        return
-
-    quote_ctx, _ = init_context()
-    try:
-        # 先订阅行情，然后获取报价
-        ret_sub, _ = quote_ctx.subscribe([code], [1])  # SubType.QUOTE
-        if ret_sub != RET_OK:
-            console.print(f"[red]❌ 订阅行情失败：{_}[/]")
-            return
-
-        ret, data = quote_ctx.get_stock_quote(code)
-        if ret != RET_OK:
-            console.print(f"[red]❌ 查询股价失败：{data}[/]")
-            console.print("")
-            console.print("可能原因：")
-            console.print("  1. 股票代码格式不正确")
-            console.print("  2. 该股票不存在或已退市")
-            console.print("  3. 富途牛牛数据服务异常")
-            console.print("")
-            console.print("正确的代码格式：")
-            console.print("  美股：US.AAPL, US.TSLA")
-            console.print("  港股：HK.00700, HK.09988")
-            return
-
-        if data.empty:
-            console.print(f"[red]❌ 未找到股票：{code}[/]")
-            return
-
-        for _, row in data.iterrows():
-            name = row.get("name", "")
-            last_price = row.get("last_price", 0)
-            change_val = row.get("change_val", 0)
-            change_rate = row.get("change_rate", 0)
-            high_price = row.get("high_price", 0)
-            low_price = row.get("low_price", 0)
-            volume = row.get("volume", 0)
-            turnover = row.get("turnover", 0)
-
-            # 涨跌颜色
-            change_style = "green" if change_val > 0 else "red" if change_val < 0 else ""
-            change_sign = "+" if change_val > 0 else ""
-
-            console.print(f"\n[bold]📊 {code} - {name}[/]")
-            console.print(f"  [bold]现价：[/]{last_price:.2f}")
-            console.print(
-                f"  [bold]涨跌：[/][{change_style}]{change_sign}{change_val:.2f} ({change_sign}{change_rate:.2f}%)[/{change_style}]"
-            )
-            console.print(
-                f"  [bold]最高：[/]{high_price:.2f}  [bold]最低：[/]{low_price:.2f}"
-            )
-            console.print(
-                f"  [bold]成交量：[/]{volume:,}  [bold]成交额：[/]${turnover:,.2f}"
-            )
-
-    except Exception as e:
-        console.print(f"[red]❌ 查询失败：{e}[/]")
-    finally:
-        quote_ctx.close()
-
-
 def cmd_orders():
     """查询订单."""
     quote_ctx, trade_ctx = init_context()
@@ -284,7 +216,6 @@ def cmd_help():
 
 [bold]可用命令：[/]
   [cyan]positions[/]         查询持仓
-  [cyan]quote[/] <代码>      查询股价
   [cyan]orders[/]           查询订单
   [cyan]accinfo[/]          查询账户信息
   [cyan]setup[/]            配置向导
@@ -292,8 +223,6 @@ def cmd_help():
 
 [bold]示例：[/]
   [green]futu positions[/]
-  [green]futu quote US.AAPL[/]
-  [green]futu quote HK.00700[/]
   [green]futu orders[/]
   [green]futu accinfo[/]
 

@@ -2,7 +2,7 @@
 """
 Futu CLI - Make Futu portfolio your CLI.
 
-Query positions, quotes, orders and more from Futu NiuNiu.
+Query positions, orders, account info and more from Futu NiuNiu.
 """
 
 import sys
@@ -11,7 +11,6 @@ from rich.console import Console
 
 from .commands import (
     cmd_positions,
-    cmd_quote,
     cmd_orders,
     cmd_accinfo,
     cmd_setup,
@@ -28,13 +27,11 @@ console = Console()
 def main(ctx, version):
     """🦞 Futu CLI - 富途投资组合查询工具
 
-    Query positions, quotes, orders and more from Futu NiuNiu.
+    Query positions, orders, account info and more from Futu NiuNiu.
 
     \b
     Examples:
       futu positions
-      futu quote US.AAPL
-      futu quote HK.00700
       futu orders
       futu accinfo
       futu setup
@@ -58,16 +55,6 @@ def main(ctx, version):
 def positions():
     """📊 Query positions (stocks, options, etc.)"""
     cmd_positions()
-
-
-@main.command()
-@click.argument("code", required=True)
-def quote(code):
-    """📈 Query stock quote
-
-    CODE: Stock code (e.g., US.AAPL, HK.00700)
-    """
-    cmd_quote(code)
 
 
 @main.command()
