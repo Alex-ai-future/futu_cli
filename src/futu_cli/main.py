@@ -13,6 +13,7 @@ from .commands import (
     cmd_positions,
     cmd_orders,
     cmd_accinfo,
+    cmd_cashflow,
     cmd_setup,
     cmd_help,
 )
@@ -67,6 +68,13 @@ def orders():
 def accinfo():
     """💰 Query account information (cash, buying power, etc.)"""
     cmd_accinfo()
+
+
+@main.command()
+@click.option("--date", "-d", default=None, help="Clearing date (yyyy-MM-dd format, default: today)")
+def cashflow(date):
+    """📋 Query account cash flow"""
+    cmd_cashflow(date)
 
 
 @main.command()

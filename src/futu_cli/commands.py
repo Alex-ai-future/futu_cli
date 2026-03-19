@@ -1,11 +1,12 @@
 """Futu CLI commands implementation."""
 
 import sys
+from datetime import datetime, timedelta
 
 from rich.console import Console
 from rich.table import Table
 
-from futu import RET_OK
+from futu import RET_OK, TrdEnv, CashFlowDirection
 
 from .api import init_context, unlock_trade, get_stock_type, check_connection
 from .config import config
@@ -169,6 +170,98 @@ def cmd_accinfo():
         trade_ctx.close()
 
 
+def cmd_cashflow(date: str = None):
+    """查询账户现金流水."""
+    # 如果没有指定日期，默认为今天
+    if not date:
+        date = datetime.now().strftime("%Y-%m-%d")
+
+    # 验证日期格式
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        console.print("[red]❌ 日期格式错误，请使用 yyyy-MM-dd 格式（如：2025-03-19）[/]")
+        return
+
+    quote_ctx, trade_ctx = init_context()
+    try:
+        if not unlock_trade(trade_ctx):
+            return
+
+        ret, data = trade_ctx.get_acc_cash_flow(
+            clearing_date=date,
+            trd_env=TrdEnv.REAL
+        )
+        if ret != RET_OK:
+            console.print(f"[red]❌ 查询现金流水失败：{data}[/]")
+            return
+
+        if data.empty:
+            console.print(f"[yellow]📋 {date} 无现金流水记录[/]")
+            return
+
+        # 创建表格
+        table = Table(title=f"📋 现金流水 - {date}")
+        table.add_column("流水 ID", style="cyan", justify="right")
+        table.add_column("清算日期", justify="center")
+        table.add_column("交收日期", justify="center")
+        table.add_column("币种", justify="center")
+        table.add_column("类型", justify="left")
+        table.add_column("方向", justify="center")
+        table.add_column("金额", justify="right")
+        table.add_column("备注", justify="left")
+
+        for _, row in data.iterrows():
+            cashflow_id = str(row.get("cashflow_id", ""))
+            clearing_date = str(row.get("clearing_date", ""))
+            settlement_date = str(row.get("settlement_date", ""))
+            currency = str(row.get("currency", ""))
+            cashflow_type = str(row.get("cashflow_type", ""))
+            cashflow_direction = str(row.get("cashflow_direction", ""))
+            cashflow_amount = row.get("cashflow_amount", 0)
+            cashflow_remark = str(row.get("cashflow_remark", ""))
+
+            # 金额颜色（正数流入=绿色，负数流出=红色）
+            amount_style = "green" if cashflow_amount > 0 else "red" if cashflow_amount < 0 else ""
+            amount_str = f"{'+' if cashflow_amount > 0 else ''}${cashflow_amount:,.2f}"
+
+            # 方向符号
+            direction_symbol = "↓" if cashflow_direction == "IN" else "↑" if cashflow_direction == "OUT" else "-"
+
+            table.add_row(
+                cashflow_id,
+                clearing_date,
+                settlement_date,
+                currency,
+                cashflow_type,
+                direction_symbol,
+                f"[{amount_style}]{amount_str}[/{amount_style}]" if amount_style else amount_str,
+                cashflow_remark[:30] + "..." if len(cashflow_remark) > 30 else cashflow_remark,
+            )
+
+        console.print(table)
+
+        # 汇总信息
+        total_inflow = data[data["cashflow_amount"] > 0]["cashflow_amount"].sum()
+        total_outflow = abs(data[data["cashflow_amount"] < 0]["cashflow_amount"].sum())
+        net_flow = data["cashflow_amount"].sum()
+        net_style = "green" if net_flow > 0 else "red" if net_flow < 0 else ""
+
+        console.print(
+            f"\n[bold]流入：[/][green]${total_inflow:,.2f}[/] | "
+            f"[bold]流出：[/][red]${total_outflow:,.2f}[/] | "
+            f"[bold]净流入：[/][{net_style}]{'+' if net_flow > 0 else ''}${net_flow:,.2f}[/{net_style}]"
+        )
+
+    except Exception as e:
+        console.print(f"[red]❌ 查询失败：{e}[/]")
+        import traceback
+        traceback.print_exc()
+    finally:
+        quote_ctx.close()
+        trade_ctx.close()
+
+
 def cmd_setup():
     """配置向导."""
     from .config import config
@@ -218,6 +311,7 @@ def cmd_help():
   [cyan]positions[/]         查询持仓
   [cyan]orders[/]           查询订单
   [cyan]accinfo[/]          查询账户信息
+  [cyan]cashflow[/] [日期]   查询现金流水
   [cyan]setup[/]            配置向导
   [cyan]help[/]             显示帮助
 
@@ -225,6 +319,8 @@ def cmd_help():
   [green]futu positions[/]
   [green]futu orders[/]
   [green]futu accinfo[/]
+  [green]futu cashflow[/]
+  [green]futu cashflow --date 2025-03-19[/]
 
 [bold]环境变量：[/]
   FUTU_PASSWORD      交易密码（必填）

@@ -49,6 +49,12 @@ futu accinfo
 
 # Query orders
 futu orders
+
+# Query cash flow (default: today)
+futu cashflow
+
+# Query cash flow for specific date
+futu cashflow --date 2025-03-19
 ```
 
 ## Commands
@@ -58,6 +64,7 @@ futu orders
 | `futu positions` | Query all positions (stocks, options, etc.) |
 | `futu orders` | Query pending and history orders |
 | `futu accinfo` | Query account information (cash, buying power) |
+| `futu cashflow [date]` | Query account cash flow for specified date (yyyy-MM-dd) |
 | `futu setup` | Configuration wizard |
 | `futu help` | Show help message |
 
