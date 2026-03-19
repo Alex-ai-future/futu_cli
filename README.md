@@ -92,9 +92,18 @@ futu history-fills --code HK.00700
 
 ### Config File Location
 
-After running `futu setup --reset`, the configuration file is created at:
-- `~/.futu-cli/.env` (when installed via `uv tool install`)
-- `./.env` (when running from source)
+The `.env` file is located in the **project root directory**:
+
+| Installation | Config Path |
+|--------------|-------------|
+| Source run | `futu_cli/.env` |
+| `uv tool install` | `~/.local/share/uv/tools/futu-cli/.env` |
+| AI Agent skill | `<skill-directory>/.env` |
+
+**To find your config path:**
+```bash
+futu setup  # Shows the current config file path
+```
 
 **Security:** The file permission is set to `600` (only owner can read/write).
 
