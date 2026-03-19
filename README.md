@@ -156,6 +156,29 @@ pip install futu-api python-dotenv
 uv tool uninstall futu-cli
 ```
 
+## Tab Completion
+
+Enable tab completion for faster command input:
+
+```bash
+# Bash
+futu completion bash >> ~/.bash_completion
+source ~/.bash_completion
+
+# Zsh
+futu completion zsh >> ~/.zshrc
+source ~/.zshrc
+
+# Fish
+futu completion fish >> ~/.config/fish/completions/futu.fish
+```
+
+**What gets completed:**
+- Command names: `futu posi[Tab]` → `futu positions`
+- Options: `futu cashflow --[Tab]` → `--date`, `--help`
+- Stock codes: `futu quote US.[Tab]` → `US.AAPL`, `US.TSLA`, etc.
+- Date formats: `futu cashflow --date [Tab]` → `2025-03-19`
+
 ## License
 
 Apache-2.0
