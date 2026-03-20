@@ -165,6 +165,55 @@ pip install futu-api python-dotenv
 uv tool uninstall futu-cli
 ```
 
+## For AI Agent (OpenClaw)
+
+futu_cli 自带 [`SKILL.md`](./SKILL.md)，让 AI Agent 能自动学习并使用本工具。
+
+### Skills CLI（推荐）
+
+```bash
+npx skills add Alex-ai-future/futu_cli -g -a openclaw
+```
+
+| 参数 | 说明 |
+|------|------|
+| `-g` | 全局安装（用户级别，跨项目共享） |
+| `-a openclaw` | 指定目标 Agent |
+| `-y` | 非交互模式 |
+
+### 重要：Agent 路径配置
+
+Agent 需要访问 futu_cli 的外部路径才能正确执行命令。
+
+**安装后的路径：**
+- 技能位置：`~/.openclaw/workspace/skills/futu_cli/`
+- 配置文件：技能目录下的 `.env` 文件
+
+**确保 Agent 有以下权限：**
+- 读取/写入 `.env` 文件（配置交易密码）
+- 执行 Python 脚本
+
+### 验证安装
+
+在 OpenClaw 中对话：
+> "查看我的富途持仓"
+
+### 常见问题
+
+**Q: Agent 无法执行命令？**
+
+A: 检查以下几点：
+1. 技能是否正确安装（运行 `npx skills list` 查看）
+2. `.env` 文件是否存在且配置正确
+3. 富途牛牛客户端是否已启动并开启 API 监听
+
+**Q: 如何修改配置？**
+
+A: 编辑技能目录下的 `.env` 文件：
+```bash
+vi ~/.openclaw/workspace/skills/futu_cli/.env
+```
+
 ## Tab Completion
 
 Enable tab completion for faster command input:

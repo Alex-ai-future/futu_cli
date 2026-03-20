@@ -1,283 +1,263 @@
 ---
 name: futu-cli
-description: 查询富途投资组合数据。持仓、订单、账户信息、现金流水。首次使用需配置交易密码，之后可直接使用。
+description: Use futu-cli for ALL Futu NiuNiu (富途牛牛) portfolio operations — checking positions, orders, account info, cash flow, and trading history. Invoke whenever the user requests any Futu portfolio interaction.
+author: Alex-ai-future
+version: "0.1.0"
+tags:
+  - futu
+  - portfolio
+  - stock
+  - trading
+  - finance
+  - cli
+  - 富途
 ---
 
-# Futu CLI 技能
+# futu-cli — Futu Portfolio CLI Tool
 
-查询和分析富途投资组合数据的 CLI 工具。
+**Binary:** `futu`
+**Credentials:** `.env` file with trading password (stored locally)
 
-## 更新
-
-```bash
-# 使用 uv 更新到最新版本
-uv tool upgrade futu-cli
-
-# 或者重新安装
-uv tool install --force git+https://github.com/Alex-ai-future/futu_cli.git
-```
-
-**更新日志：**
-- 查看 GitHub Releases: https://github.com/Alex-ai-future/futu_cli/releases
-
-## 快速开始
+## Setup
 
 ```bash
-# 安装
+# Install (requires Python 3.9+)
 uv tool install git+https://github.com/Alex-ai-future/futu_cli.git
 
-# 配置（首次使用）
-futu setup --reset
-
-# 使用
-futu positions
+# Upgrade to latest (recommended)
+uv tool upgrade futu-cli
 ```
 
-## ⚙️ 配置说明
+## For OpenClaw Agent
 
-### 首次使用配置
-
-**需要配置以下内容：**
-
-1. 交易密码（必填）
-2. 监听地址（可选，默认 `127.0.0.1`）
-3. 监听端口（可选，默认 `11112`）
-
-#### 配置方法
-
-运行配置向导：
+### Installation
 
 ```bash
-futu setup --reset
+npx skills add Alex-ai-future/futu_cli -g -a openclaw
 ```
 
-或手动创建 `.env` 文件：
+| Flag | Description |
+|------|-------------|
+| `-g` | Global install (user-level, shared across projects) |
+| `-a openclaw` | Target specific agent |
+| `-y` | Non-interactive mode |
+
+### Important: Path Configuration
+
+**After installation:**
+- Skill location: `~/.openclaw/workspace/skills/futu_cli/`
+- Config file: `<skill-directory>/.env`
+
+**Ensure agent has permissions to:**
+- Read/write `.env` file (for trading password)
+- Execute Python scripts
+
+### Verify Installation
+
+In OpenClaw conversation:
+> "查看我的富途持仓"
+
+## Authentication
+
+**IMPORTANT FOR AGENTS**: Before executing ANY futu command, check if credentials exist first. Do NOT assume password is configured.
+
+### Step 0: Check if already configured
 
 ```bash
-# 创建配置文件
-cat > ~/.futu-cli/.env << EOF
+futu setup  # Shows config file path and status
+```
+
+If password is set and Futu NiuNiu is running, skip to [Command Reference](#command-reference).
+If password is missing, proceed to Step 1.
+
+### Step 1: Guide user to configure
+
+```bash
+futu setup --reset  # Creates/updates .env file
+```
+
+Then edit the `.env` file to set the trading password:
+```bash
+vi ~/.openclaw/workspace/skills/futu_cli/.env
+```
+
+Add:
+```bash
 FUTU_PASSWORD=你的交易密码
 FUTU_HOST=127.0.0.1
 FUTU_PORT=11112
-EOF
-
-# 设置安全权限（仅所有者可读写）
-chmod 600 ~/.futu-cli/.env
 ```
 
-#### 配置项说明
+### Step 2: Verify Futu NiuNiu is running
 
-| 配置项          | 说明             | 默认值      |
-| --------------- | ---------------- | ----------- |
-| `FUTU_PASSWORD` | 富途牛牛交易密码 | 必填        |
-| `FUTU_HOST`     | API 监听地址     | `127.0.0.1` |
-| `FUTU_PORT`     | API 监听端口     | `11112`     |
+Ensure:
+1. ✅ Futu NiuNiu client is open
+2. ✅ API listening is enabled (Settings → API Settings)
+3. ✅ Listen port is 11112 (default)
 
-#### 修改配置
-
-编辑 `.env` 文件：
+### Step 3: Test connection
 
 ```bash
-vi ~/.futu-cli/.env
+futu positions  # Should display positions if everything is configured correctly
 ```
 
-### 配置富途牛牛客户端
+### Handle common auth issues
 
-1. 打开富途牛牛客户端
-2. 进入 **设置** → **API 设置**
-3. 开启 **监听端口**
-4. 确认监听地址为 `127.0.0.1`，端口为 `11112`
+| Symptom | Agent action |
+|---------|-------------|
+| `❌ 无法连接到富途牛牛` | Ask user to open Futu NiuNiu client and enable API listening |
+| `❌ 解锁交易失败` | Check trading password in `.env` file |
+| `❌ 未设置交易密码` | Run `futu setup --reset` and guide user to set password |
 
-### 后续使用
+## Command Reference
 
-配置完成后，直接运行命令即可，无需重复输入密码。
+### Portfolio Queries
 
-## 命令速查表
+| Command | Description | Example |
+|---------|-------------|---------|
+| `futu positions` | Query all positions | `futu positions` |
+| `futu accinfo` | Query account info | `futu accinfo` |
+| `futu cashflow [date]` | Query cash flow for date | `futu cashflow --date 2025-03-19` |
 
-| 命令                   | 说明              | 选项                         |
-| ---------------------- | ----------------- | ---------------------------- |
-| `futu positions`       | 查询持仓          | -                            |
-| `futu orders`          | 查询订单（挂单）  | -                            |
-| `futu accinfo`         | 查询账户信息      | -                            |
-| `futu cashflow [date]` | 查询现金流水      | `--date YYYY-MM-DD`          |
-| `futu history-orders`  | 查询历史订单      | `--start`, `--end`, `--code` |
-| `futu history-fills`   | 查询历史成交      | `--start`, `--end`, `--code` |
-| `futu setup`           | 配置向导          | `--reset`                    |
-| `futu completion`      | 生成 Tab 补全脚本 | `bash`, `zsh`, `fish`        |
-| `futu help`            | 显示帮助          | -                            |
+### Order History
 
-### 命令示例
+| Command | Description | Example |
+|---------|-------------|---------|
+| `futu orders` | Query pending orders | `futu orders` |
+| `futu history-orders` | Query order history | `futu history-orders --start "2025-01-01"` |
+| `futu history-fills` | Query trade history | `futu history-fills --code US.AAPL` |
+
+### Account Management
+
+| Command | Description |
+|---------|-------------|
+| `futu setup` | Show config status |
+| `futu setup --reset` | Create/update config file |
+| `futu help` | Show help message |
+
+## Agent Workflow Examples
+
+### Check portfolio overview
 
 ```bash
-# 查询持仓
+# Get positions with P/L
 futu positions
 
-# 查询今日现金流水
+# Get account balance
+futu accinfo
+```
+
+### Analyze today's cash flow
+
+```bash
+# Today's cash flow
 futu cashflow
 
-# 查询指定日期的现金流水
+# Specific date
 futu cashflow --date 2025-03-19
+```
 
-# 查询最近 90 天历史订单
+### Review trading history
+
+```bash
+# Last 90 days orders
 futu history-orders
 
-# 查询指定时间段的历史订单
-futu history-orders --start "2025-01-01 00:00:00" --code US.AAPL
+# Filter by stock
+futu history-orders --code US.AAPL
 
-# 查询历史成交
-futu history-fills --code HK.00700
+# Trade fills
+futu history-fills --start "2025-01-01 00:00:00"
 ```
 
-## 连接检测
-
-**脚本自动检测以下内容：**
-
-1. ✅ 富途牛牛客户端是否运行
-2. ✅ API 监听端口是否开启
-3. ✅ 交易密码是否正确
-
-### 错误处理
-
-| 错误         | 提示信息              | 解决方法                                                                      |
-| ------------ | --------------------- | ----------------------------------------------------------------------------- |
-| 连接失败     | ❌ 无法连接到富途牛牛 | 1. 启动富途牛牛客户端<br>2. 进入 设置 → API 设置<br>3. 开启监听端口           |
-| 密码错误     | ❌ 解锁交易失败       | 1. 检查交易密码是否正确<br>2. 注意剩余尝试次数<br>3. 编辑 `.env` 文件修改密码 |
-| 日期格式错误 | ❌ 日期格式错误       | 使用 `YYYY-MM-DD` 格式，如 `2025-03-19`                                       |
-| 查询失败     | ❌ 查询失败 + 原因    | 根据具体错误提示检查                                                          |
-
-### 检测逻辑
-
-```
-1. 检查连接 → 失败 → 提示启动客户端、开启 API 监听
-           ↓ 成功
-2. 解锁交易 → 失败 → 提示检查交易密码
-           ↓ 成功
-3. 执行查询 → 失败 → 显示具体错误原因
-```
-
-## 环境变量
-
-| 变量            | 默认值      | 说明             |
-| --------------- | ----------- | ---------------- |
-| `FUTU_PASSWORD` | -           | 交易密码（必填） |
-| `FUTU_HOST`     | `127.0.0.1` | API 监听地址     |
-| `FUTU_PORT`     | `11112`     | API 监听端口     |
-
-## 配置文件位置
-
-配置文件位于**项目根目录**的 `.env` 文件：
-
-| 使用场景 | 配置文件路径 |
-|----------|--------------|
-| 源码运行 | `futu_cli/.env` |
-| `uv tool install` 全局安装 | `~/.local/share/uv/tools/futu-cli/.env` |
-| AI Agent 技能目录 | `技能目录/.env` |
-
-**查看当前配置路径：**
-```bash
-futu setup  # 显示当前使用的配置文件路径
-```
-
-**安全提示：**
-- `.env` 文件权限为 `600`（仅所有者可读写）
-- 请勿将 `.env` 文件上传到代码仓库或分享给他人
-
-## 输出格式
-
-### 表格输出（默认）
-
-所有命令默认输出富文本表格，包含：
-
-- 股票代码、名称
-- 持仓方向（多/空/平）
-- 证券类型（正股/港股/期权等）
-- 数量、市值
-- 盈亏金额和比例（带颜色：绿色=盈利，红色=亏损）
-
-### 汇总信息
-
-查询结果底部显示汇总：
-
-- 总市值、总盈亏
-- 流入、流出、净流入
-
-## AI Agent 使用提示
-
-### 解析输出
-
-输出使用 Rich 表格格式，包含 ANSI 颜色代码。解析时：
-
-- 忽略颜色代码，提取文本内容
-- 汇总信息在表格底部，以 "总市值"、"总盈亏"、"流入"、"流出" 开头
-
-### 常见场景
+### Daily portfolio check workflow
 
 ```bash
-# 场景 1：查看持仓概况
-futu positions
-
-# 场景 2：分析投资组合
-futu positions  # 获取持仓
-futu accinfo    # 获取账户资金
-
-# 场景 3：查看资金流动
-futu cashflow --date 2025-03-19
-
-# 场景 4：查询交易历史
-futu history-orders --start "2025-01-01"
-futu history-fills --start "2025-01-01"
+# Morning check
+futu positions          # Current holdings
+futu accinfo           # Account balance
+futu cashflow          # Yesterday's cash flow
+futu history-orders    # Recent orders
 ```
 
-### 错误处理建议
+## Output Format
 
-1. **连接失败** → 提示用户启动富途牛牛客户端
-2. **密码错误** → 提示用户运行 `futu setup --reset` 重新配置
-3. **查询失败** → 根据错误信息提供具体建议
+All commands output Rich-formatted tables with:
+- **Colors**: Green for profit, red for loss
+- **Summary**: Total values at bottom
+- **Currency**: USD, HKD, etc. shown in 币种 column
 
-## 安全提示
-
-- ⚠️ 交易密码保存在本地 `.env` 文件中
-- ⚠️ 文件权限为 `600`（仅所有者可读写）
-- ⚠️ 请勿将 `.env` 文件上传到代码仓库或分享给他人
-- ⚠️ 本工具仅用于**查询**，不支持交易操作
-- ⚠️ 交易功能（买入/卖出）需通过富途 App 操作
-
-## 常见问题
-
-### Q: 为什么查询也需要交易密码？
-
-A: 富途 API 要求所有账户相关查询（包括持仓、订单、账户信息）都需要解锁交易，即使只是查询操作。
-
-### Q: 配置文件在哪里？
-
-A:
-
-- 全局安装：`~/.futu-cli/.env`
-- 源码运行：`./.env`
-
-### Q: 如何修改密码？
-
-A: 编辑 `.env` 文件，或运行 `futu setup --reset` 重新创建。
-
-### Q: 证券类型如何判断？
-
-A: 脚本自动根据代码格式判断：
-
-- 期权：代码包含 P/C 且有 6 位日期（如 `US.AAPL260320P250000`）
-- 港股：以 `HK.` 开头
-- 美股：以 `US.` 开头
-- 其他：默认为正股
-
-## 文件结构
+### Example: positions output
 
 ```
-futu_cli/
-├── SKILL.md                 # 技能文档（本文件）
-├── README.md                # 用户使用指南
-├── pyproject.toml           # 项目配置
-└── src/futu_cli/
-    ├── main.py              # CLI 入口
-    ├── commands.py          # 命令实现
-    ├── config.py            # 配置管理
-    └── api.py               # 富途 API 连接
+📊 持仓情况
+┏━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━━━┳━━━━━━━━┳━━━━━━━━┓
+┃ 代码 ┃ 名称 ┃ 方向 ┃ 类型 ┃ 币种 ┃ 成本价   ┃ 市价   ┃ 持仓 ┃ 市值     ┃ 盈亏   ┃ 盈亏率 ┃
+┡━━━━━━╇━━━━━━╇━━━━━━╇━━━━━━╇━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━━━╇━━━━━━━━╇━━━━━━━━┩
+│ US.… │ AAPL │ 多   │ 正股 │ USD  │ $150.000 │ $155.… │ 100  │ $15,500 │ +$500  │ +3.33% │
+│ HK.… │ 腾讯 │ 多   │ 港股 │ HKD  │ $350.000 │ $370.… │ 200  │ $74,000 │ +$4,000│ +5.71% │
+└──────┴──────┴──────┴──────┴──────┴─────────┴────────┴──────┴─────────┴────────┴────────┘
+
+总市值：$89,500 | 总盈亏：+$4,500
 ```
+
+## Error Codes
+
+| Error | Code | Agent action |
+|-------|------|-------------|
+| Connection failed | `❌ 无法连接到富途牛牛` | Ask user to start Futu NiuNiu and enable API |
+| Password error | `❌ 解锁交易失败` | Check password in `.env`, remind about remaining attempts |
+| Missing password | `❌ 未设置交易密码` | Run `futu setup --reset` |
+| Invalid date format | `❌ 日期格式错误` | Use `YYYY-MM-DD` format (e.g., `2025-03-19`) |
+| Query failed | `❌ 查询失败` | Check specific error message |
+
+## Limitations
+
+- **Query only** — no trading operations (buy/sell not supported)
+- **Futu NiuNiu required** — client must be running with API enabled
+- **Real trading only** — simulated accounts not supported for some queries
+- **Rate limited** — some APIs have rate limits (e.g., 10 requests per 30s)
+- **Single account** — one Futu account at a time
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FUTU_PASSWORD` | — | Trading password (required) |
+| `FUTU_HOST` | `127.0.0.1` | API listen address |
+| `FUTU_PORT` | `11112` | API listen port |
+
+## Safety Notes for Agents
+
+- **Do NOT ask for password in chat** — guide user to edit `.env` file locally
+- **Treat password as secret** — do not echo `.env` content to stdout
+- **Verify before executing** — check `futu setup` before running queries
+- **Handle errors gracefully** — provide actionable guidance based on error type
+- **Respect rate limits** — do not parallelize multiple futu commands
+
+## Troubleshooting
+
+**Q: Commands fail with connection error?**
+
+A: Check:
+1. Futu NiuNiu client is running
+2. API listening is enabled (Settings → API Settings)
+3. Port is correct (default 11112)
+
+**Q: Password error?**
+
+A: 
+1. Check `.env` file has correct password
+2. Password has limited attempts (usually 10)
+3. Edit `.env` to update password
+
+**Q: How to find config file?**
+
+A: Run `futu setup` — it shows the exact path to the `.env` file.
+
+**Q: Agent can't execute commands?**
+
+A: Verify:
+1. Skill is installed: `npx skills list`
+2. `.env` file exists and is configured
+3. Agent has execute permissions
