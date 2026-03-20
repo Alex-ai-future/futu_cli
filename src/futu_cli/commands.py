@@ -37,6 +37,8 @@ def cmd_positions():
         table.add_column("方向", justify="center")
         table.add_column("类型", justify="center")
         table.add_column("币种", justify="center")
+        table.add_column("成本价", justify="right")
+        table.add_column("市价", justify="right")
         table.add_column("持仓", justify="right")
         table.add_column("市值", justify="right")
         table.add_column("盈亏", justify="right")
@@ -57,6 +59,12 @@ def cmd_positions():
             # 币种
             currency = str(row.get("currency", ""))
 
+            # 成本价和市价
+            cost_price = row.get("cost_price", 0)
+            cost_price_str = f"${cost_price:,.3f}" if cost_price else "-"
+            nominal_price = row.get("nominal_price", 0)
+            nominal_price_str = f"${nominal_price:,.3f}" if nominal_price else "-"
+
             qty_str = str(abs(qty))
             market_val = f"${row.get('market_val', 0):,.2f}"
             pl = row.get("pl_val", 0)
@@ -70,6 +78,8 @@ def cmd_positions():
                 side,
                 stock_type,
                 currency,
+                cost_price_str,
+                nominal_price_str,
                 qty_str,
                 market_val,
                 f"[{pl_style}]{pl_str}[/{pl_style}]" if pl_style else pl_str,
@@ -297,8 +307,9 @@ def cmd_history_orders(start: str = None, end: str = None, code: str = None):
         table.add_column("类型", justify="center")
         table.add_column("状态", justify="center")
         table.add_column("币种", justify="center")
+        table.add_column("订单价", justify="right")
+        table.add_column("成交均价", justify="right")
         table.add_column("数量", justify="right")
-        table.add_column("价格", justify="right")
         table.add_column("已成交", justify="right")
         table.add_column("创建时间", justify="center")
 
@@ -310,8 +321,11 @@ def cmd_history_orders(start: str = None, end: str = None, code: str = None):
             order_type = str(row.get("order_type", ""))
             order_status = str(row.get("order_status", ""))
             currency = str(row.get("currency", ""))
+            price = row.get("price", 0)
+            price_str = f"${price:,.3f}" if price else "-"
+            dealt_avg_price = row.get("dealt_avg_price", 0)
+            dealt_avg_price_str = f"${dealt_avg_price:,.3f}" if dealt_avg_price else "-"
             qty = f"{row.get('qty', 0):,.0f}"
-            price = f"{row.get('price', 0):.3f}"
             dealt_qty = f"{row.get('dealt_qty', 0):,.0f}"
             create_time = str(row.get("create_time", ""))
 
@@ -323,8 +337,9 @@ def cmd_history_orders(start: str = None, end: str = None, code: str = None):
                 order_type,
                 order_status,
                 currency,
+                price_str,
+                dealt_avg_price_str,
                 qty,
-                price,
                 dealt_qty,
                 create_time,
             )
@@ -370,6 +385,7 @@ def cmd_history_fills(start: str = None, end: str = None, code: str = None):
         table.add_column("名称", justify="left")
         table.add_column("方向", justify="center")
         table.add_column("市场", justify="center")
+        table.add_column("状态", justify="center")
         table.add_column("数量", justify="right")
         table.add_column("价格", justify="right")
         table.add_column("时间", justify="center")
@@ -382,6 +398,7 @@ def cmd_history_fills(start: str = None, end: str = None, code: str = None):
             stock_name = str(row.get("stock_name", ""))
             trd_side = str(row.get("trd_side", ""))
             deal_market = str(row.get("deal_market", ""))
+            status = str(row.get("status", ""))
             qty = f"{row.get('qty', 0):,.0f}"
             price = f"{row.get('price', 0):.3f}"
             create_time = str(row.get("create_time", ""))
@@ -394,6 +411,7 @@ def cmd_history_fills(start: str = None, end: str = None, code: str = None):
                 stock_name[:15] if len(stock_name) > 15 else stock_name,
                 trd_side,
                 deal_market,
+                status,
                 qty,
                 price,
                 create_time,
