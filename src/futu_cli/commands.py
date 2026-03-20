@@ -36,6 +36,7 @@ def cmd_positions():
         table.add_column("名称", style="cyan", justify="left")
         table.add_column("方向", justify="center")
         table.add_column("类型", justify="center")
+        table.add_column("币种", justify="center")
         table.add_column("持仓", justify="right")
         table.add_column("市值", justify="right")
         table.add_column("盈亏", justify="right")
@@ -53,6 +54,9 @@ def cmd_positions():
             api_type = str(row.get("stock_type", ""))
             stock_type = get_stock_type(code, api_type if api_type != "未知" else None)
 
+            # 币种
+            currency = str(row.get("currency", ""))
+
             qty_str = str(abs(qty))
             market_val = f"${row.get('market_val', 0):,.2f}"
             pl = row.get("pl_val", 0)
@@ -65,6 +69,7 @@ def cmd_positions():
                 name,
                 side,
                 stock_type,
+                currency,
                 qty_str,
                 market_val,
                 f"[{pl_style}]{pl_str}[/{pl_style}]" if pl_style else pl_str,
@@ -291,6 +296,7 @@ def cmd_history_orders(start: str = None, end: str = None, code: str = None):
         table.add_column("方向", justify="center")
         table.add_column("类型", justify="center")
         table.add_column("状态", justify="center")
+        table.add_column("币种", justify="center")
         table.add_column("数量", justify="right")
         table.add_column("价格", justify="right")
         table.add_column("已成交", justify="right")
@@ -303,6 +309,7 @@ def cmd_history_orders(start: str = None, end: str = None, code: str = None):
             trd_side = str(row.get("trd_side", ""))
             order_type = str(row.get("order_type", ""))
             order_status = str(row.get("order_status", ""))
+            currency = str(row.get("currency", ""))
             qty = f"{row.get('qty', 0):,.0f}"
             price = f"{row.get('price', 0):.3f}"
             dealt_qty = f"{row.get('dealt_qty', 0):,.0f}"
@@ -315,6 +322,7 @@ def cmd_history_orders(start: str = None, end: str = None, code: str = None):
                 trd_side,
                 order_type,
                 order_status,
+                currency,
                 qty,
                 price,
                 dealt_qty,
@@ -361,6 +369,7 @@ def cmd_history_fills(start: str = None, end: str = None, code: str = None):
         table.add_column("代码", style="cyan", justify="left")
         table.add_column("名称", justify="left")
         table.add_column("方向", justify="center")
+        table.add_column("市场", justify="center")
         table.add_column("数量", justify="right")
         table.add_column("价格", justify="right")
         table.add_column("时间", justify="center")
@@ -372,6 +381,7 @@ def cmd_history_fills(start: str = None, end: str = None, code: str = None):
             stock_code = str(row.get("code", ""))
             stock_name = str(row.get("stock_name", ""))
             trd_side = str(row.get("trd_side", ""))
+            deal_market = str(row.get("deal_market", ""))
             qty = f"{row.get('qty', 0):,.0f}"
             price = f"{row.get('price', 0):.3f}"
             create_time = str(row.get("create_time", ""))
@@ -383,6 +393,7 @@ def cmd_history_fills(start: str = None, end: str = None, code: str = None):
                 stock_code,
                 stock_name[:15] if len(stock_name) > 15 else stock_name,
                 trd_side,
+                deal_market,
                 qty,
                 price,
                 create_time,
