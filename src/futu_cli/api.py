@@ -108,29 +108,12 @@ def init_context() -> Tuple[OpenQuoteContext, OpenSecTradeContext]:
 
 
 def unlock_trade(trade_ctx: OpenSecTradeContext) -> bool:
-    """解锁交易接口."""
-    if not config.check_config():
-        print("❌ 错误：未设置交易密码")
-        print("")
-        if config.env_file.exists():
-            print(f"配置文件已存在但 FUTU_PASSWORD 为空")
-            print(f"请编辑文件：{config.env_file}")
-        else:
-            print("💡 配置文件不存在，创建方法：")
-            print("")
-            print(f"  cd {config.script_dir}")
-            print("  cat > .env << EOF")
-            print("  FUTU_PASSWORD=你的交易密码")
-            print("  FUTU_HOST=127.0.0.1")
-            print("  FUTU_PORT=11112")
-            print("  EOF")
-            print("")
-            print("  chmod 600 .env  # 设置安全权限")
-            print("")
-        return False
-
-    ret, msg = trade_ctx.unlock_trade(password=config.password)
-    if ret != RET_OK:
-        print(f"❌ 解锁交易失败：{msg}")
-        return False
+    """
+    解锁交易接口。
+    
+    注意：GUI 版本 OpenD 已屏蔽 API 解锁接口，必须在 OpenD GUI 界面手动解锁。
+    此函数仅检查是否已解锁，不执行解锁操作。
+    """
+    # GUI 版本已屏蔽 unlock_trade 接口，直接返回 True
+    # 用户需要在 OpenD GUI 界面手动点击「解锁交易」按钮
     return True
